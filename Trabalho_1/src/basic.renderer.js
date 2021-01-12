@@ -7,88 +7,91 @@
 
 /* ------------------------------------------------------------ */
 
-function getMaxPoint() {
+// function getMaxPoint() {
 
-}
+// }
 
-function getMinPoint() {
+// function getMinPoint() {
 
-}
+// }
 
-function boundingBox(primitive) {
-    var vertices = primitive.vertices;
-    var min_x = vertices[0][0];
-    var min_y = vertices[0][1];
-    var max_x = vertices[0][0];
-    var max_y = vertices[0][1];
+// function boundingBox(primitive) {
+//     var vertices = primitive.vertices;
+//     var min_x = vertices[0][0];
+//     var min_y = vertices[0][1];
+//     var max_x = vertices[0][0];
+//     var max_y = vertices[0][1];
 
-    vertices.forEach((point) => {
-        if(point[0] < min_x)
-            min_x = point[0]; 
-    })
+//     vertices.forEach((point) => {
+//         if(point[0] < min_x)
+//             min_x = point[0]; 
+//     })
 
-    vertices.forEach((point) => {
-        if(point[0] > max_x)
-            max_x = point[0];
-    })
+//     vertices.forEach((point) => {
+//         if(point[0] > max_x)
+//             max_x = point[0];
+//     })
 
-    vertices.forEach((point) => {
-        if(point[1] < min_y) 
-            min_y = point[1];
-    })
+//     vertices.forEach((point) => {
+//         if(point[1] < min_y) 
+//             min_y = point[1];
+//     })
 
-    vertices.forEach((point) => {
-        if(point[1] > max_y)
-            max_y = point[1];
-    })
+//     vertices.forEach((point) => {
+//         if(point[1] > max_y)
+//             max_y = point[1];
+//     })
 
-    bbox = {
-        min_x : min_x,
-        max_x : max_x,
-        min_y : min_y,
-        max_y : max_y
-    }
+//     bbox = {
+//         min_x : min_x,
+//         max_x : max_x,
+//         min_y : min_y,
+//         max_y : max_y
+//     }
 
-    return bbox;
-}
+//     return bbox;
+// }
 
-function boundingBoxCircle(primitive) {
-    var bbox = {
-        min_x : primitive.center[0] + primitive.radius,
-        max_x : primitive.center[0] - primitive.radius,
-        min_y : primitive.center[1] + primitive.radius,
-        max_y : primitive.center[1] - primitive.radius,
-    }
-    return bbox;
-}
+// function boundingBoxCircle(primitive) {
+//     var bbox = {
+//         min_x : primitive.center[0] + primitive.radius,
+//         max_x : primitive.center[0] - primitive.radius,
+//         min_y : primitive.center[1] + primitive.radius,
+//         max_y : primitive.center[1] - primitive.radius,
+//     }
+//     return bbox;
+// }
 
-function PixelIsInBoundingBox(x, y, bbox) {
-    if( (x > bbox.min_x && x < bbox.max_x) && (y > bbox.min_y && y < bbox.max_y) )
-        return true;
-    else return false;
-}
+// function PixelIsInBoundingBox(x, y, bbox) {
+//     if( (x > bbox.min_x && x < bbox.max_x) && (y > bbox.min_y && y < bbox.max_y) )
+//         return true;
+//     else return false;
+// }
 
-function earcutPolygon(primitive, preprop_scene) {
+function fanTriangulationPolygon(primitive, preprop_scene) {
     // Converte os polígonos em triângulos para que a função 'inside' precise tratar somente de triângulos
-        const { vertices, color } = primitive;
-        for (var i = 1; i < vertices.length - 1; i++) {
-            var triangle = {
-                shape: 'triangle',
-                vertices: [
-                    vertices[0],
-                    vertices[i],
-                    vertices[i+1]
-                ],
-                color
-                //,xform
-            }
-            preprop_scene.push(triangle) ;
-        }    
+    console.log("Entrei no fanTriangulationPolygon");
+    const { vertices, color } = primitive;
+    for (var i = 1; i < vertices.length - 1; i++) {
+        var triangle = {
+            shape: 'triangle',
+            vertices: [
+                vertices[0],
+                vertices[i],
+                vertices[i+1]
+            ],
+            color
+            //,xform
+        }
+        console.log("Dei push no triangle: " + triangle);
+        preprop_scene.push(triangle) ;
+    }    
+    console.log("Retornei o preprop_scene: " + preprop_scene);
     return preprop_scene;
 }
 
 
-// Função auxiliar para o earcut dos círculos
+//Função auxiliar para o earcut dos círculos
 function getRadiansList(triangles_number) {
     var radians = [];
     var degree = (2 * Math.PI)/(triangles_number + 2);
@@ -97,12 +100,20 @@ function getRadiansList(triangles_number) {
     return radians;
 }
 
-function earcutCircle(primitive) {
+
+function cutCircle(primitive) {
     var radius = primitive.radius;
     var center = primitive.center;
     var center_x = center[0];
     var center_y = center[1];
     var radiansList = getRadiansList(40);
+
+    var new_vertices = [];
+    for (const degree of radiansList) {
+        new_vertices.push( [radius * Math.cos(degree) + center_x, radius * Math.sin(degree) + center_y] );
+    }
+    console.log(new_vertices);
+    return new_vertices;
 }
 
 
@@ -185,13 +196,20 @@ Object.assign( Screen.prototype, {
                 if(primitive.shape == "triangle")
                     preprop_scene.push(primitive);
 
-                else if(primitive.shape == "polygon") {
-                    preprop_scene.push( earcutPolygon(primitive, preprop_scene) );
+                else if(primitive.shape == "polygon")
+                    preprop_scene.push( fanTriangulationPolygon(primitive, preprop_scene) );
+                
+                else if(primitive.shape == "circle") {
+                    var new_vertices = cutCircle(primitive);
+                    var new_primitive = {
+                        shape: "polygon",
+                        vertices: new_vertices,
+                        color: primitive.color
+                    };
+                    preprop_scene.push( fanTriangulationPolygon(new_primitive, preprop_scene) );
                 }
                 
             }
-
-            
             return preprop_scene;
         },
 
