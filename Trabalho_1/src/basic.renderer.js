@@ -4,7 +4,19 @@
 	(global = global || self, factory(global.BasicRenderer = {}));
 }(this, (function (exports) { 'use strict';
 
+/* ------------------------------------------------------------  /
+#   Tarefa prática 1 de Computação Gráfica - 2020.1              #
+#   Professor: João Vitor                                        #
+#   Alunos: Daniel La Rubia Rolim -- DRE: 115033904              #
+#   Alunos: Victor Ribeiro Pires  -- DRE: 113051532              #
+#   Observações: Infelizmente, por questão de tempo,             #
+#   não conseguimos realizar a implementação das                 #
+#   transformações lineares.                                     #
+/* ------------------------------------------------------------ */
 
+
+/* ------------------------------------------------------------  /
+/  ----------------- CRIANDO BOUNDINGBOX ----------------------  /
 /* ------------------------------------------------------------ */
 
 function getMaxPoint(vertices, axis) {
@@ -30,51 +42,21 @@ function boundingBox(primitive) {
         return false;
     }
     var vertices = primitive.vertices;
-    var min_x = getMinPoint(vertices, 0);
-    var min_y = getMinPoint(vertices, 1);
-    var max_x = getMaxPoint(vertices, 0);
-    var max_y = getMaxPoint(vertices, 1);
-
-    // var min_x = vertices[0][0];
-    // var min_y = vertices[0][1];
-    // var max_x = vertices[0][0];
-    // var max_y = vertices[0][1];
-
-    // vertices.forEach((point) => {
-    //     if(point[0] < min_x)
-    //         min_x = point[0]; 
-    // })
-
-    // vertices.forEach((point) => {
-    //     if(point[0] > max_x)
-    //         max_x = point[0];
-    // })
-
-    // vertices.forEach((point) => {
-    //     if(point[1] < min_y) 
-    //         min_y = point[1];
-    // })
-
-    // vertices.forEach((point) => {
-    //     if(point[1] > max_y)
-    //         max_y = point[1];
-    // })
 
     var bbox = {
-        min_x : min_x,
-        max_x : max_x,
-        min_y : min_y,
-        max_y : max_y
+        min_x : getMinPoint(vertices, 0),
+        max_x : getMaxPoint(vertices, 0),
+        min_y : getMinPoint(vertices, 1),
+        max_y : getMaxPoint(vertices, 1)
     }
-
+    // Usado para debuggar a bounding box
+    console.log("bbox => {\nmin_x: " + bbox.min_x + "\nmin_y: " + bbox.min_y + "\nmax_x: " + bbox.max_x + "\nmax_y: " + bbox.max_y + "}");
     return bbox;
 }
 
-function PixelIsInBoundingBox(x, y, bbox) {
-    if( (x > bbox.min_x && x < bbox.max_x) && (y > bbox.min_y && y < bbox.max_y) )
-        return true;
-    else return false;
-}
+/* ----------------------------------------------------------  /
+/  --------------- TRIANGULAÇÃO DE POLÍGONOS ----------------  /
+/* ---------------------------------------------------------- */
 
 function fanTriangulationPolygon(primitive, preprop_scene) {
     // Converte os polígonos em triângulos para que a função 'inside' precise tratar somente de triângulos
@@ -99,7 +81,11 @@ function fanTriangulationPolygon(primitive, preprop_scene) {
 }
 
 
-//Função auxiliar para o earcut dos círculos
+/* -----------------------------------------------------------  /
+/  ----------- TRANSFORMANDO CÍRCULOS EM POLÍGONOS -----------  /
+/* ----------------------------------------------------------- */
+
+// Função auxiliar para o corte dos círculos
 function getRadiansList(triangles_number) {
     var radians = [];
     var degree = (2 * Math.PI)/(triangles_number + 2);
@@ -107,7 +93,6 @@ function getRadiansList(triangles_number) {
         radians.push(i * degree);
     return radians;
 }
-
 
 function cutCircle(primitive) {
     var radius = primitive.radius;
@@ -118,6 +103,7 @@ function cutCircle(primitive) {
 
     var new_vertices = [];
     for (const degree of radiansList) {
+        // Tentamos fazer sem utilizar o Math.floor mas dá problemas quando aplicado à bounding box por conta dos valores quebrados. Como não existem pixels não inteiros, são impressos apenas os que possuem valor inteiro
         //new_vertices.push( [radius * Math.cos(degree) + center_x, radius * Math.sin(degree) + center_y] );
         new_vertices.push( [Math.floor(radius * Math.cos(degree) + center_x), Math.floor(radius * Math.sin(degree) + center_y)] );
     }
@@ -125,12 +111,13 @@ function cutCircle(primitive) {
     return new_vertices;
 }
 
-
+/* ------------------------------------------------------------  /
+/  ---------- CÁLCULO DAS NORMAIS E PROD. INTERNO -------------  /
+/* ------------------------------------------------------------ */
 function getNormals(primitive) {
     var normals = [];
     var vertices = primitive.vertices;
 
-    // Verificar necessidade de realização de checagem
     if(primitive.shape == "triangle") {
         var dx1 = vertices[1][0] - vertices[0][0];                                
         var dy1 = vertices[1][1] - vertices[0][1];                
@@ -155,14 +142,17 @@ function getNormals(primitive) {
 function dot(P, normal) {
     return P[0] * normal[0] + P[1] * normal[1];
 }
-        
+
+/* ------------------------------------------------------------  /
+/  ----------- VERIFICA O PERTENCIMENTO DO PIXEL --------------  /
+/* ------------------------------------------------------------ */
+// Obs: como os círculos e polígonos são transformados em triângulos, trata apenas do 'shape' == 'triangle'
 function inside(  x, y, primitive  ) {
         // You should implement your inside test here for all shapes   
         // for now, it only returns a false test
         var vertices = primitive.vertices;
 
         if(primitive.shape == "triangle") {
-            //if(PixelIsInBoundingBox(x, y, boundingBox(primitive))) {
                 var normals = getNormals(primitive);
                 
                 // Produto interno
@@ -178,7 +168,6 @@ function inside(  x, y, primitive  ) {
                 if(dot0 >= 0 && dot1 <= 0 && dot2 >= 0) {
                     return true;
                 }
-            //}
         }
         return false
 }
