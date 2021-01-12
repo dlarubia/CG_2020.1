@@ -26,11 +26,14 @@ function getMinPoint(vertices, axis) {
 }
 
 function boundingBox(primitive) {
+    if( !(primitive.shape == "triangle")) {
+        return false;
+    }
     var vertices = primitive.vertices;
-    min_x = getMinPoint(vertices, 0);
-    min_y = getMinPoint(vertices, 1);
-    max_x = getMaxPoint(vertices, 0);
-    max_y = getMaxPoint(vertices, 1);
+    var min_x = getMinPoint(vertices, 0);
+    var min_y = getMinPoint(vertices, 1);
+    var max_x = getMaxPoint(vertices, 0);
+    var max_y = getMaxPoint(vertices, 1);
 
     // var min_x = vertices[0][0];
     // var min_y = vertices[0][1];
@@ -115,7 +118,8 @@ function cutCircle(primitive) {
 
     var new_vertices = [];
     for (const degree of radiansList) {
-        new_vertices.push( [radius * Math.cos(degree) + center_x, radius * Math.sin(degree) + center_y] );
+        //new_vertices.push( [radius * Math.cos(degree) + center_x, radius * Math.sin(degree) + center_y] );
+        new_vertices.push( [Math.floor(radius * Math.cos(degree) + center_x), Math.floor(radius * Math.sin(degree) + center_y)] );
     }
     console.log(new_vertices);
     return new_vertices;
@@ -224,14 +228,17 @@ Object.assign( Screen.prototype, {
 
         rasterize: function() {
             var color;
-        
+            var test_bbox_i = 0;
+            var test_bbox_j = 0;
             // In this loop, the image attribute must be updated after the rasterization procedure.
             for( var primitive of this.scene ) {
-
+                var bbox = boundingBox(primitive);
                 // Loop through all pixels
-                for (var i = 0; i < this.width; i++) {
+                for (var i = bbox.min_x; i < bbox.max_x; i++) {
+                    test_bbox_i = i;
                     var x = i + 0.5;
-                    for( var j = 0; j < this.height; j++) {
+                    for( var j = bbox.min_y; j < bbox.max_y; j++) {
+                        test_bbox_j = j;
                         var y = j + 0.5;
 
                         // First, we check if the pixel center is inside the primitive 
@@ -243,6 +250,8 @@ Object.assign( Screen.prototype, {
                         
                     }
                 }
+                console.log("i: " + test_bbox_i);
+                console.log("j: " + test_bbox_j);
             }
             
             
