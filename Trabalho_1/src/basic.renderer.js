@@ -7,66 +7,71 @@
 
 /* ------------------------------------------------------------ */
 
-// function getMaxPoint() {
+function getMaxPoint(vertices, axis) {
+    var max_point = vertices[0][axis];
+    vertices.forEach((point) => {
+        if(point[axis] > max_point)
+            max_point = point[axis];
+    })
+    return max_point;
+}
 
-// }
+function getMinPoint(vertices, axis) {
+    var min_point = vertices[0][axis];
+    vertices.forEach((point) => {
+        if(point[axis] < min_point)
+            min_point = point[axis];
+    })
+    return min_point;
+}
 
-// function getMinPoint() {
+function boundingBox(primitive) {
+    var vertices = primitive.vertices;
+    min_x = getMinPoint(vertices, 0);
+    min_y = getMinPoint(vertices, 1);
+    max_x = getMaxPoint(vertices, 0);
+    max_y = getMaxPoint(vertices, 1);
 
-// }
+    // var min_x = vertices[0][0];
+    // var min_y = vertices[0][1];
+    // var max_x = vertices[0][0];
+    // var max_y = vertices[0][1];
 
-// function boundingBox(primitive) {
-//     var vertices = primitive.vertices;
-//     var min_x = vertices[0][0];
-//     var min_y = vertices[0][1];
-//     var max_x = vertices[0][0];
-//     var max_y = vertices[0][1];
+    // vertices.forEach((point) => {
+    //     if(point[0] < min_x)
+    //         min_x = point[0]; 
+    // })
 
-//     vertices.forEach((point) => {
-//         if(point[0] < min_x)
-//             min_x = point[0]; 
-//     })
+    // vertices.forEach((point) => {
+    //     if(point[0] > max_x)
+    //         max_x = point[0];
+    // })
 
-//     vertices.forEach((point) => {
-//         if(point[0] > max_x)
-//             max_x = point[0];
-//     })
+    // vertices.forEach((point) => {
+    //     if(point[1] < min_y) 
+    //         min_y = point[1];
+    // })
 
-//     vertices.forEach((point) => {
-//         if(point[1] < min_y) 
-//             min_y = point[1];
-//     })
+    // vertices.forEach((point) => {
+    //     if(point[1] > max_y)
+    //         max_y = point[1];
+    // })
 
-//     vertices.forEach((point) => {
-//         if(point[1] > max_y)
-//             max_y = point[1];
-//     })
+    var bbox = {
+        min_x : min_x,
+        max_x : max_x,
+        min_y : min_y,
+        max_y : max_y
+    }
 
-//     bbox = {
-//         min_x : min_x,
-//         max_x : max_x,
-//         min_y : min_y,
-//         max_y : max_y
-//     }
+    return bbox;
+}
 
-//     return bbox;
-// }
-
-// function boundingBoxCircle(primitive) {
-//     var bbox = {
-//         min_x : primitive.center[0] + primitive.radius,
-//         max_x : primitive.center[0] - primitive.radius,
-//         min_y : primitive.center[1] + primitive.radius,
-//         max_y : primitive.center[1] - primitive.radius,
-//     }
-//     return bbox;
-// }
-
-// function PixelIsInBoundingBox(x, y, bbox) {
-//     if( (x > bbox.min_x && x < bbox.max_x) && (y > bbox.min_y && y < bbox.max_y) )
-//         return true;
-//     else return false;
-// }
+function PixelIsInBoundingBox(x, y, bbox) {
+    if( (x > bbox.min_x && x < bbox.max_x) && (y > bbox.min_y && y < bbox.max_y) )
+        return true;
+    else return false;
+}
 
 function fanTriangulationPolygon(primitive, preprop_scene) {
     // Converte os polígonos em triângulos para que a função 'inside' precise tratar somente de triângulos
@@ -106,7 +111,7 @@ function cutCircle(primitive) {
     var center = primitive.center;
     var center_x = center[0];
     var center_y = center[1];
-    var radiansList = getRadiansList(40);
+    var radiansList = getRadiansList(70);
 
     var new_vertices = [];
     for (const degree of radiansList) {
