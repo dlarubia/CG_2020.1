@@ -16,37 +16,77 @@ function gen_robot() {
     head.position.z = -0.05;  // Not necessary, makes head not in front of other robot parts
 
     // left: upper arm, arm, hand
-    var left_upper_arm = gen_rect(1.5, 4);
+    var left_upper_arm = gen_rect(1.5, 3);
     left_upper_arm.name = "left_upper_arm";
-    var left_lower_arm = gen_rect(1, 3);
-    left_lower_arm.name = "lower_arm";
+
+    var left_lower_arm = gen_rect(1.5, 3);
+    left_lower_arm.name = "left_lower_arm";
+
     var left_hand = gen_rect(1.5,0.5);
-    left_hand.name = "hand";
+    left_hand.name = "left_hand";
+
     left_upper_arm.add(left_lower_arm);
     left_lower_arm.add(left_hand);
-    left_hand.position.y = -1.5;
-    left_lower_arm.position.y = -3;
-    left_upper_arm.position.x = -2.6;
+    
+    left_upper_arm.position.x = -3.0;
+    left_upper_arm.position.y = 1.5
+    left_lower_arm.position.y = -3.2;
+    left_upper_arm.position.x = -3.0;
+    left_hand.position.y = -1.9;
 
     // right: upper arm, arm, hand
-    var right_upper_arm = left_upper_arm.clone();  
-    right_upper_arm.name = "right_upper_arm";
-    right_upper_arm.position.x = 2.6;
+    right_upper_arm = left_upper_arm.clone()
+    right_upper_arm.name = "right_upper_arm";    
+
+    right_lower_arm = left_upper_arm.clone()
+    right_lower_arm.name = "right_lower_arm";    
+
+    right_hand = left_hand.clone()
+    right_hand.name="right_hand";
+
+    right_upper_arm.position.x = 3.0;
     
 
     // left: upper leg, leg, foot
-    // TO DO
+    var left_upper_leg = gen_rect(2, 2.5);
+    left_upper_leg.name = "left_upper_leg";
+    
+    var left_lower_leg = gen_rect(2, 2.5);
+    left_lower_leg.name = "left_lower_leg";
+
+    var left_foot = gen_rect(1.7, 0.7);
+    left_foot.name = "left_foot";
+
+    left_upper_leg.add(left_lower_leg);
+    left_lower_leg.add(left_foot)
+
+    left_upper_leg.position.x = -1.1;
+    left_upper_leg.position.y = -4.5;
+    left_lower_leg.position.y = -2.7;
+    left_foot.position.y = -1.8;
+
+
 
     // right: upper leg, leg, foot
-    // TO DO
+    var right_upper_leg = left_upper_leg.clone();
+    right_upper_leg.name = "right_upper_leg";
+
+    var right_lower_leg = left_lower_leg.clone();
+    right_lower_leg.name = "right_lower_leg";
+
+    var right_foot = left_foot.clone();
+    right_foot.name = "right_foot";
+
+    right_upper_leg.position.x = 1.1;
 
     // Creating hieararchy
     robot.add(torso);
-    torso.add(right_upper_arm);
     torso.add(head);
+    torso.add(right_upper_arm);
     torso.add(left_upper_arm);
     // TO DO: add remaining robot parts hierarchical relations
-
+    torso.add(left_upper_leg);
+    torso.add(right_upper_leg);
 
     robot.name = "robot";
 
