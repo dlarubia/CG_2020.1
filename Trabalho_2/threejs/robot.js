@@ -36,13 +36,10 @@ function gen_robot() {
 
     // right: upper arm, arm, hand
     right_upper_arm = left_upper_arm.clone()
-    right_upper_arm.name = "right_upper_arm";    
-
-    right_lower_arm = left_upper_arm.clone()
-    right_lower_arm.name = "right_lower_arm";    
-
-    right_hand = left_hand.clone()
-    right_hand.name="right_hand";
+    right_upper_arm.name = "right_upper_arm";
+    right_upper_arm.children[0].name = "right_lower_arm";
+    right_upper_arm.children[0].children[0].name = "right_hand";  
+    console.log(right_upper_arm.children[0].children[0]);
 
     right_upper_arm.position.x = 3.0;
     
@@ -70,12 +67,6 @@ function gen_robot() {
     // right: upper leg, leg, foot
     var right_upper_leg = left_upper_leg.clone();
     right_upper_leg.name = "right_upper_leg";
-
-    var right_lower_leg = left_lower_leg.clone();
-    right_lower_leg.name = "right_lower_leg";
-
-    var right_foot = left_foot.clone();
-    right_foot.name = "right_foot";
 
     right_upper_leg.position.x = 1.1;
 
