@@ -1,3 +1,9 @@
+// ------------------------------------------------- //
+// SEGUNDO TRABALHO - COMPUTAÇÃO GRÁFICA - 2020.1
+// ALUNOS: DANIEL LA RUBIA 
+//         VICTOR RIBEIRO PIRES
+// ------------------------------------------------- //
+
 // Rotation around point logic
 // Based on https://stackoverflow.com/questions/42812861/three-js-pivot-point/42866733#42866733
 
@@ -41,7 +47,7 @@ var stats;
 // Objects in Scene
 var robot;
 
-
+var new_robot = gen_robot();
 
 
 function init() {
@@ -97,18 +103,37 @@ function onWindowResize() {
 function onDocumentKeyDown(event) {
     // One for Hand wave, Two for your Custom Animation #2 and Three - Your Custom Animation #3
     // For now, only works for Handwave
+    //robot = new_robot;
     
     console.log(event.key);
     key = parseInt(event.key);
-
+    
     animations = {
         1 : WaveAnimation,
-        2 : false,
-        3 : false,
+        2 : OneFoot,
+        3 : Medit,
     };
+    
 
+    // Testamos algumas maneiras de resetar o cenário e criar um robô limpo, mas a execução congelava e não conseguimos corrigir a tempo
     // Run selected animation
-    animation = new animations[1]();
+    // scene = new THREE.Scene();
+    // robot = gen_robot();
+    // scene.add(robot);
+    // scene.remove(robot);
+    // scene.add(gen_robot());
+    switch (key) {
+        case 1:
+            animation = new animations[1]();
+            break;
+        case 2:
+            animation = new animations[2]();
+            break;
+        case 3:
+            animation = new animations[3]();
+            break;
+    }
+    //animation = new animations[1]();
     animation.run()
 }
 
