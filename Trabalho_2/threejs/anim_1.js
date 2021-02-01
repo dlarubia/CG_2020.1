@@ -31,9 +31,9 @@ Object.assign( WaveAnimation.prototype, {
                 let right_lower_arm =  robot.getObjectByName("right_lower_arm");
                  
                 right_lower_arm.matrix.makeRotationZ(this._object.theta)
-                .multiply( new THREE.Matrix4().makeTranslation(-1, 0, 0 ))                              
-                .premultiply( new THREE.Matrix4().makeTranslation(0, -1.5, 0 ))
-                .premultiply( new THREE.Matrix4().makeTranslation(1.8, -0.7, 0 )); 
+                .multiply( new THREE.Matrix4().makeTranslation(-0.8, -3.2, 0 ))                              
+                //.premultiply( new THREE.Matrix4().makeTranslation(0, -1.5, 0 ))
+                //.premultiply( new THREE.Matrix4().makeTranslation(1.8, -0.7, 0 )); 
                 
                 right_lower_arm.updateMatrixWorld(true);
                 stats.update();
@@ -42,20 +42,23 @@ Object.assign( WaveAnimation.prototype, {
             
 
             // Hand
-            let rightHandTween = new TWEEN.Tween( {theta:0} ).to( {theta:Math.PI/3}, 500)
+            let rightHandTween = new TWEEN.Tween( {theta:0} ).to( {theta:-Math.PI/0.1}, 600)
             .onUpdate(function() {
                 let right_hand = robot.getObjectByName("right_hand");
 
                 right_hand.matrix.makeRotationZ(this._object.theta)
-                .multiply( new THREE.Matrix4().makeTranslation(-0.7, 0, 0 ))                              
-                .premultiply( new THREE.Matrix4().makeTranslation(0, -1.3, 0 ))
-                .premultiply( new THREE.Matrix4().makeTranslation(1.2, -0.5, 0 )); 
+                .premultiply( new THREE.Matrix4().makeTranslation(0, -2.0, 0 ))                              
+                //  .premultiply( new THREE.Matrix4().makeTranslation(0, -1.3, 0 ))
+                //  .premultiply( new THREE.Matrix4().makeTranslation(-1.7, -0.5, 0 )); 
+
+                right_hand.updateMatrixWorld(true);
+                stats.update();
+                renderer.render(scene, camera);
             })
         
         //  upperArmTween.chain( ... ); this allows other related Tween animations occur at the same time
+        upperArmTween.chain(lowerArmTween,rightHandTween);
         upperArmTween.start();   
-        lowerArmTween.start();    
-        rightHandTween.start();
     },
     animate: function(time) {
         window.requestAnimationFrame(this.animate.bind(this));
